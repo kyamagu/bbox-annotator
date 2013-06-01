@@ -1,7 +1,9 @@
 Bounding box annotator
 ======================
 
-An image bounding box annotation tool written in CoffeeScript/JavaScript.
+A bounding box annotation tool written in CoffeeScript/JavaScript.
+There is an online demo at
+http://www.cs.stonybrook.edu/~kyamagu/software/bbox-annotator/text.html
 
 Contents
 --------
