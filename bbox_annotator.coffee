@@ -198,7 +198,7 @@ class @BBoxAnnotator
       switch status
         when 'input'
           selector.get_input_element().blur() if e.which == 13
-      true
+      e.which != 13
     selector.get_input_element().mousedown (e) ->
       annotator.hit_menuitem = true
     selector.get_input_element().mousemove (e) ->

@@ -11,8 +11,8 @@ Contents
     mturk.html             Example to use in Amazon MTurk.
     README.md              This documentation.
 
-Be sure to escape `&` character with `&amp;` when directly editing an MTurk
-template on the Amazon website.
+Be sure to unescape `&#215;` with `×` when directly editing an MTurk template on
+the Amazon requester UI.
 
 Compile
 -------
@@ -37,20 +37,20 @@ Embed a block element for annotation tool and a form element in HTML.
 
 Then, attach a piece of script to launch the annotation tool. The annotator
 takes a callback function on change of the annotation data. Use JSON format to
-catch the value.
+display the value.
 
     <script type="text/javascript">
     $(document).ready(function() {
       var editor = new BBoxAnnotator({
         url: "/url/to/image.jpg",
-        onchange: function(entries) {
-          $("#annotatino_data").val(JSON.stringify(entries);
+        onchange: function(annotation) {
+          $("#annotation_data").val(JSON.stringify(annotation);
         }
       });
     });
     </script>
 
-The returned entries are an array of objects. Here is an example.
+The returned annotation is an array of objects. Here is an example.
 
     [
       {
@@ -69,7 +69,7 @@ Options
 
 The `BBoxAnnotator` object takes options to change its behavior.
 
- * `id`: CSS selector for the annotator element. Default is "#bbox_annotator".
+ * `id`: CSS selector for the annotator element. Default is `"#bbox_annotator"`.
  * `input_method`: One of the "text", "select", and "fixed". This will change
                    how to input associated annotation text.
  * `labels`: A string, or an array of strings. Set of labels used for suggestion

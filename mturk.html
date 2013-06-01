@@ -6,11 +6,17 @@
 
 <div style="display:inline-block;vertical-align:top;">
   <h1>Annotate objects in the picture</h1>
-  <p>Draw a rectangle over an object with mouse.</p>
+  <p>
+    Draw a rectangle over an object with mouse. Then, name that object.
+  </p>
   <div>
+    <label for="comment"><em>Comment:</em></label><br />
+    <textarea id="comment_area" name="comment"></textarea>
+  </div>
+  <p id="button_paragraph">
     <input id="annotation_data" name="annotation_data" type="hidden" />
     <input id="reset_button" type="reset" />
-  </div>
+  </p>
 </div>
 <div id="bbox_annotator" style="display:inline-block"></div>
 
@@ -271,7 +277,7 @@
               selector.get_input_element().blur();
             }
         }
-        return true;
+        return e.which !== 13;
       });
       selector.get_input_element().mousedown(function(e) {
         return annotator.hit_menuitem = true;
@@ -322,7 +328,7 @@
         "user-select": "none",
         "text-align": "center"
       });
-      $("<div></div>").appendTo(close_button).html('&amp;#215;').css({
+      $("<div></div>").appendTo(close_button).html('×').css({
         "display": "block",
         "text-align": "center",
         "width": "16px",
@@ -371,22 +377,23 @@
 
 }).call(this);
 
-
 // Main entry point. Use a placeholder for image urls.
 $(document).ready(function() {
+  var assignment_id = turkGetParam('assignmentId', "");
   // Initialize the bounding-box annotator.
   var annotator = new BBoxAnnotator({
-    id: "#bbox_annotator", // Default: "#bbox_annotator"
-    url: "$image_url",     // This is the placeholder for url.
-    input_method: 'fixed', // Can be one of ['text', 'select', 'fixed']
-    labels: "object", // Label of the object.
+    url: "${image_url}",
+    input_method: 'text', // Can be one of ['text', 'select', 'fixed']
+    labels: ["dress", "top", "skirt", "pants", "shoes"], // Label of the object.
     onchange: function(entries) {
-      $("#annotation_data").val(JSON.stringify(entries))
-      if (entries.length > 1) {
-        $("#submitButton").attr("disabled");
+      $("#annotation_data").val(JSON.stringify(entries));
+      if (entries.length > 0 &&
+          assignment_id != "" &&
+          assignment_id != "ASSIGNMENT_ID_NOT_AVAILABLE") {
+        $("#submitButton").removeAttr("disabled");
       }
       else {
-        $("#submitButton").removeAttr("disabled");
+        $("#submitButton").attr("disabled", "disabled");
       }
     }
   });
@@ -395,6 +402,11 @@ $(document).ready(function() {
     annotator.clear_all();
   });
   // Disable the submission at the beginning.
-  $("#submitButton").attr("disabled");
+  $("#submitButton").attr("disabled", "disabled");
+  $("#submitButton").detach().appendTo("#button_paragraph");
+  if (assignment_id == "ASSIGNMENT_ID_NOT_AVAILABLE") {
+    $("#submitButton").val("This is preview");
+  }
+  console.log(assignment_id);
 });
 </script>
