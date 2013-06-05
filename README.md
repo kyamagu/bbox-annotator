@@ -46,7 +46,7 @@ display the value.
       var editor = new BBoxAnnotator({
         url: "/url/to/image.jpg",
         onchange: function(annotation) {
-          $("#annotation_data").val(JSON.stringify(annotation);
+          $("#annotation_data").val(JSON.stringify(annotation));
         }
       });
     });
