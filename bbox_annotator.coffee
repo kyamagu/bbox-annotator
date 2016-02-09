@@ -36,7 +36,7 @@ class BBoxSelector
         @label_box.append @label_input
         @label_input.append($('<option value>choose an item</option>'))
         for label in options.labels
-          @label_input.append '<option value="' + label + '">' + 
+          @label_input.append '<option value="' + label + '">' +
                               label + '</option>'
         @label_input.change (e) -> this.blur()
       when 'text'
@@ -53,13 +53,13 @@ class BBoxSelector
         @label_box.append @label_input
         @label_input.val(options.labels)
       else
-        throw 'Invalid label_input parameter: ' + options.input_method 
+        throw 'Invalid label_input parameter: ' + options.input_method
     @label_box.hide()
 
   # Crop x and y to the image size.
   crop: (pageX, pageY) ->
     point =
-      x: Math.min(Math.max(Math.round(pageX - @image_frame.offset().left), 0), 
+      x: Math.min(Math.max(Math.round(pageX - @image_frame.offset().left), 0),
                            Math.round(@image_frame.width()-1))
       y: Math.min(Math.max(Math.round(pageY - @image_frame.offset().top), 0),
                            Math.round(@image_frame.height()-1))
@@ -71,7 +71,7 @@ class BBoxSelector
     this.refresh()
     @selector.show()
     $('body').css('cursor', 'crosshair')
-    document.onselectstart = () -> 
+    document.onselectstart = () ->
       false
 
   # When a selection updates.
@@ -82,7 +82,7 @@ class BBoxSelector
   # When starting to input label.
   input_label: (options) ->
     $('body').css('cursor', 'default')
-    document.onselectstart = () -> 
+    document.onselectstart = () ->
       true
     @label_box.show()
     @label_input.focus()
@@ -158,7 +158,7 @@ class @BBoxAnnotator
     @onchange = options.onchange
 
   # Initialize events.
-  initialize_events: (selector, options) ->  
+  initialize_events: (selector, options) ->
     status = 'free'
     @hit_menuitem = false
     annotator = this
@@ -268,6 +268,6 @@ class @BBoxAnnotator
     close_button.hide()
   # Clear all entries.
   clear_all: (e) ->
-    $(".annotated_bounding_box").detach()
+    @annotator_element.find(".annotated_bounding_box").detach()
     this.entries.splice 0
     this.onchange this.entries
