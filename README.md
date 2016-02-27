@@ -2,8 +2,7 @@ Bounding box annotator
 ======================
 
 A bounding box annotation tool written in CoffeeScript/JavaScript.
-There is an online demo at
-http://www.cs.stonybrook.edu/~kyamagu/software/bbox-annotator/text.html
+There is an online demo at https://kyamagu.github.io/bbox-annotator/demo.html
 
 Contents
 --------
