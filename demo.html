@@ -12,6 +12,12 @@
 <div id="bbox_annotator" style="display:inline-block"></div>
 <div style="display:inline-block;vertical-align:top;">
   <div>
+    <span>Input method: </span>
+    <a href="?input=text">text</a> |
+    <a href="?input=select">select</a> |
+    <a href="?input=fixed">fixed</a>
+  </div>
+  <div>
     <textarea id="annotation_data" name="annotation" rows="30" cols="50" style="font-family:monospace;" readonly></textarea>
   </div>
   <div>
@@ -20,12 +26,18 @@
 </div>
 
 <script type="text/javascript">
+function getParameterByName(name) {
+  var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+  return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+}
 $(document).ready(function() {
+  // Can be one of ['text', 'select', 'fixed']
+  var inputMethod = getParameterByName("input");
   // Initialize the bounding-box annotator.
   var annotator = new BBoxAnnotator({
-    url: "/url/to/image.jpg",
-    input_method: 'fixed',    // Can be one of ['text', 'select', 'fixed']
-    labels: "object",
+    url: "example.jpg",
+    input_method: inputMethod || "fixed",
+    labels: ["minion", "dress", "eyeglasses"],
     onchange: function(entries) {
       // Input the text area on change. Use "hidden" input tag unless debugging.
       // <input id="annotation_data" name="annotation_data" type="hidden" />
