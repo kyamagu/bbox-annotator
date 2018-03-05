@@ -134,6 +134,12 @@ class @BBoxAnnotator
     @annotator_element = $(options.id || "#bbox_annotator")
     @border_width = options.border_width || 2
     @show_label = options.show_label || (options.input_method != "fixed")
+
+    if options.multiple?
+      @multiple = options.multiple
+    else
+      @multiple = true
+
     @image_frame = $('<div class="image_frame"></div>')
     @annotator_element.append @image_frame
     image_element = new Image()
@@ -210,6 +216,10 @@ class @BBoxAnnotator
 
   # Add a new entry.
   add_entry: (entry) ->
+    unless @multiple
+      @annotator_element.find(".annotated_bounding_box").detach()
+      @entries.splice 0
+
     @entries.push entry
     box_element = $('<div class="annotated_bounding_box"></div>')
     box_element.appendTo(@image_frame).css
