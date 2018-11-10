@@ -22,11 +22,18 @@
 
 <script type="text/javascript">
 (function() {
+  // Use coffee-script compiler to obtain a javascript file.
+
+  //    coffee -c bbox_annotator.coffee
+
+  // See http://coffeescript.org/
+
+  // BBox selection window.
   var BBoxSelector;
 
-  BBoxSelector = (function() {
-
-    function BBoxSelector(image_frame, options) {
+  BBoxSelector = class BBoxSelector {
+    // Initializes selector in the image frame.
+    constructor(image_frame, options) {
       if (options == null) {
         options = {};
       }
@@ -46,8 +53,9 @@
       this.create_label_box(options);
     }
 
-    BBoxSelector.prototype.create_label_box = function(options) {
-      var label, _i, _len, _ref;
+    // Initializes a label input box.
+    create_label_box(options) {
+      var i, label, len, ref;
       options.labels || (options.labels = ["object"]);
       this.label_box = $('<div class="label_box"></div>');
       this.label_box.css({
@@ -62,9 +70,9 @@
           this.label_input = $('<select class="label_input" name="label"></select>');
           this.label_box.append(this.label_input);
           this.label_input.append($('<option value>choose an item</option>'));
-          _ref = options.labels;
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            label = _ref[_i];
+          ref = options.labels;
+          for (i = 0, len = ref.length; i < len; i++) {
+            label = ref[i];
             this.label_input.append('<option value="' + label + '">' + label + '</option>');
           }
           this.label_input.change(function(e) {
@@ -94,17 +102,19 @@
           throw 'Invalid label_input parameter: ' + options.input_method;
       }
       return this.label_box.hide();
-    };
+    }
 
-    BBoxSelector.prototype.crop = function(pageX, pageY) {
+    // Crop x and y to the image size.
+    crop(pageX, pageY) {
       var point;
       return point = {
         x: Math.min(Math.max(Math.round(pageX - this.image_frame.offset().left), 0), Math.round(this.image_frame.width() - 1)),
         y: Math.min(Math.max(Math.round(pageY - this.image_frame.offset().top), 0), Math.round(this.image_frame.height() - 1))
       };
-    };
+    }
 
-    BBoxSelector.prototype.start = function(pageX, pageY) {
+    // When a new selection is made.
+    start(pageX, pageY) {
       this.pointer = this.crop(pageX, pageY);
       this.offset = this.pointer;
       this.refresh();
@@ -113,23 +123,26 @@
       return document.onselectstart = function() {
         return false;
       };
-    };
+    }
 
-    BBoxSelector.prototype.update_rectangle = function(pageX, pageY) {
+    // When a selection updates.
+    update_rectangle(pageX, pageY) {
       this.pointer = this.crop(pageX, pageY);
       return this.refresh();
-    };
+    }
 
-    BBoxSelector.prototype.input_label = function(options) {
+    // When starting to input label.
+    input_label(options) {
       $('body').css('cursor', 'default');
       document.onselectstart = function() {
         return true;
       };
       this.label_box.show();
       return this.label_input.focus();
-    };
+    }
 
-    BBoxSelector.prototype.finish = function(options) {
+    // Finish and return the annotation.
+    finish(options) {
       var data;
       this.label_box.hide();
       this.selector.hide();
@@ -139,9 +152,10 @@
         this.label_input.val('');
       }
       return data;
-    };
+    }
 
-    BBoxSelector.prototype.rectangle = function() {
+    // Get a rectangle.
+    rectangle() {
       var rect, x1, x2, y1, y2;
       x1 = Math.min(this.offset.x, this.pointer.x);
       y1 = Math.min(this.offset.y, this.pointer.y);
@@ -153,9 +167,10 @@
         width: x2 - x1 + 1,
         height: y2 - y1 + 1
       };
-    };
+    }
 
-    BBoxSelector.prototype.refresh = function() {
+    // Update css of the box.
+    refresh() {
       var rect;
       rect = this.rectangle();
       this.selector.css({
@@ -168,35 +183,46 @@
         left: (rect.left - this.border_width) + 'px',
         top: (rect.top + rect.height + this.border_width) + 'px'
       });
-    };
+    }
 
-    BBoxSelector.prototype.get_input_element = function() {
+    // Return input element.
+    get_input_element() {
       return this.label_input;
-    };
+    }
 
-    return BBoxSelector;
+  };
 
-  })();
-
-  this.BBoxAnnotator = (function() {
-
-    function BBoxAnnotator(options) {
+  // Annotator object definition.
+  this.BBoxAnnotator = class BBoxAnnotator {
+    // Initialize the annotator layout and events.
+    constructor(options) {
       var annotator, image_element;
       annotator = this;
       this.annotator_element = $(options.id || "#bbox_annotator");
       this.border_width = options.border_width || 2;
       this.show_label = options.show_label || (options.input_method !== "fixed");
+      if (options.multiple != null) {
+        this.multiple = options.multiple;
+      } else {
+        this.multiple = true;
+      }
       this.image_frame = $('<div class="image_frame"></div>');
       this.annotator_element.append(this.image_frame);
+      if (options.guide) {
+        annotator.initialize_guide(options.guide);
+      }
       image_element = new Image();
       image_element.src = options.url;
       image_element.onload = function() {
         options.width || (options.width = image_element.width);
         options.height || (options.height = image_element.height);
         annotator.annotator_element.css({
-          "width": (options.width + annotator.border_width * 2) + 'px',
-          "height": (options.height + annotator.border_width * 2) + 'px',
-          "cursor": "crosshair"
+          "width": (options.width + annotator.border_width) + 'px',
+          "height": (options.height + annotator.border_width) + 'px',
+          "padding-left": (annotator.border_width / 2) + 'px',
+          "padding-top": (annotator.border_width / 2) + 'px',
+          "cursor": "crosshair",
+          "overflow": "hidden"
         });
         annotator.image_frame.css({
           "background-image": "url('" + image_element.src + "')",
@@ -205,7 +231,7 @@
           "position": "relative"
         });
         annotator.selector = new BBoxSelector(annotator.image_frame, options);
-        return annotator.initialize_events(annotator.selector, options);
+        return annotator.initialize_events(options);
       };
       image_element.onerror = function() {
         return annotator.annotator_element.text("Invalid image URL: " + options.url);
@@ -214,11 +240,13 @@
       this.onchange = options.onchange;
     }
 
-    BBoxAnnotator.prototype.initialize_events = function(selector, options) {
-      var annotator, status;
+    // Initialize events.
+    initialize_events(options) {
+      var annotator, selector, status;
       status = 'free';
       this.hit_menuitem = false;
       annotator = this;
+      selector = annotator.selector;
       this.annotator_element.mousedown(function(e) {
         if (!annotator.hit_menuitem) {
           switch (status) {
@@ -227,7 +255,7 @@
               if (status === 'input') {
                 selector.get_input_element().blur();
               }
-              if (e.which === 1) {
+              if (e.which === 1) { // left button
                 selector.start(e.pageX, e.pageY);
                 status = 'hold';
               }
@@ -237,9 +265,15 @@
         return true;
       });
       $(window).mousemove(function(e) {
+        var offset;
         switch (status) {
           case 'hold':
             selector.update_rectangle(e.pageX, e.pageY);
+        }
+        if (annotator.guide_h) {
+          offset = annotator.image_frame.offset();
+          annotator.guide_h.css('top', Math.floor(e.pageY - offset.top) + 'px');
+          annotator.guide_v.css('left', Math.floor(e.pageX - offset.left) + 'px');
         }
         return true;
       });
@@ -291,10 +325,15 @@
       return selector.get_input_element().parent().mousedown(function(e) {
         return annotator.hit_menuitem = true;
       });
-    };
+    }
 
-    BBoxAnnotator.prototype.add_entry = function(entry) {
+    // Add a new entry.
+    add_entry(entry) {
       var annotator, box_element, close_button, text_box;
+      if (!this.multiple) {
+        this.annotator_element.find(".annotated_bounding_box").detach();
+        this.entries.splice(0);
+      }
       this.entries.push(entry);
       box_element = $('<div class="annotated_bounding_box"></div>');
       box_element.appendTo(this.image_frame).css({
@@ -363,17 +402,36 @@
         return annotator.onchange(annotator.entries);
       });
       return close_button.hide();
-    };
+    }
 
-    BBoxAnnotator.prototype.clear_all = function(e) {
-      $(".annotated_bounding_box").detach();
+    // Clear all entries.
+    clear_all(e) {
+      this.annotator_element.find(".annotated_bounding_box").detach();
       this.entries.splice(0);
       return this.onchange(this.entries);
-    };
+    }
 
-    return BBoxAnnotator;
+    // Add crosshair guide.
+    initialize_guide(options) {
+      this.guide_h = $('<div class="guide_h"></div>').appendTo(this.image_frame).css({
+        "border": "1px dotted " + (options.color || '#000'),
+        "height": "0",
+        "width": "100%",
+        "position": "absolute",
+        "top": "0",
+        "left": "0"
+      });
+      return this.guide_v = $('<div class="guide_v"></div>').appendTo(this.image_frame).css({
+        "border": "1px dotted " + (options.color || '#000'),
+        "height": "100%",
+        "width": "0",
+        "position": "absolute",
+        "top": "0",
+        "left": "0"
+      });
+    }
 
-  })();
+  };
 
 }).call(this);
 

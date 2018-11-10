@@ -83,7 +83,9 @@ The `BBoxAnnotator` object takes options to change its behavior.
  * `border_width`: Size of border around the image. Default is 2. Leaving it 0
                    can make it hard to start annotation around the image border.
  * `multiple`: Defines if multiple boxes could be selected. Default is `true`. 
- 
+ * `guide`: Enable vertical and horizontal guide lines. Specify `true`, or
+            object that specifies color like `{'color': '#fff'}`.
+
 License
 -------
 

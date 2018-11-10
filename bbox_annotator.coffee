@@ -142,32 +142,38 @@ class @BBoxAnnotator
 
     @image_frame = $('<div class="image_frame"></div>')
     @annotator_element.append @image_frame
+    annotator.initialize_guide(options.guide) if options.guide
+
     image_element = new Image()
     image_element.src = options.url
     image_element.onload = () ->
       options.width ||= image_element.width
       options.height ||= image_element.height
       annotator.annotator_element.css
-        "width": (options.width + annotator.border_width * 2) + 'px',
-        "height": (options.height + annotator.border_width * 2) + 'px',
-        "cursor": "crosshair"
+        "width": (options.width + annotator.border_width) + 'px',
+        "height": (options.height + annotator.border_width) + 'px',
+        "padding-left": (annotator.border_width / 2) + 'px',
+        "padding-top": (annotator.border_width / 2) + 'px',
+        "cursor": "crosshair",
+        "overflow": "hidden"
       annotator.image_frame.css
         "background-image": "url('" + image_element.src + "')",
         "width": options.width + "px",
         "height": options.height + "px",
         "position": "relative"
       annotator.selector = new BBoxSelector(annotator.image_frame, options)
-      annotator.initialize_events(annotator.selector, options)
+      annotator.initialize_events(options)
     image_element.onerror = () ->
       annotator.annotator_element.text "Invalid image URL: " + options.url
     @entries = []
     @onchange = options.onchange
 
   # Initialize events.
-  initialize_events: (selector, options) ->
+  initialize_events: (options) ->
     status = 'free'
     @hit_menuitem = false
     annotator = this
+    selector = annotator.selector
     @annotator_element.mousedown (e) ->
       unless annotator.hit_menuitem
         switch status
@@ -182,6 +188,10 @@ class @BBoxAnnotator
       switch status
         when 'hold'
           selector.update_rectangle(e.pageX, e.pageY)
+      if annotator.guide_h
+        offset = annotator.image_frame.offset()
+        annotator.guide_h.css('top', Math.floor(e.pageY - offset.top) + 'px')
+        annotator.guide_v.css('left', Math.floor(e.pageX - offset.left) + 'px')
       true
     $(window).mouseup (e) ->
       switch status
@@ -276,8 +286,26 @@ class @BBoxAnnotator
       annotator.entries.splice index, 1
       annotator.onchange annotator.entries
     close_button.hide()
+
   # Clear all entries.
   clear_all: (e) ->
     @annotator_element.find(".annotated_bounding_box").detach()
     this.entries.splice 0
     this.onchange this.entries
+
+  # Add crosshair guide.
+  initialize_guide: (options) ->
+    @guide_h = $('<div class="guide_h"></div>').appendTo(@image_frame).css
+      "border": "1px dotted " + (options.color || '#000'),
+      "height": "0",
+      "width": "100%",
+      "position": "absolute",
+      "top": "0",
+      "left": "0"
+    @guide_v = $('<div class="guide_v"></div>').appendTo(@image_frame).css
+      "border": "1px dotted " + (options.color || '#000'),
+      "height": "100%",
+      "width": "0",
+      "position": "absolute",
+      "top": "0",
+      "left": "0"
